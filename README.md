@@ -4,6 +4,8 @@ A subcommand for cargo that launches the specified debugger on the output of a p
 
 ## Usage
 
+Install with `cargo install cargo-debug`
+
 - `cargo debug test` to run the test binary in a debugger
 - `cargo debug --debugger=lldb build` to run the output binary in lldb
 - `cargo debug test -- --all` to run the `cargo test` with the `--all` argument
