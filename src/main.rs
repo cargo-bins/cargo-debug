@@ -158,7 +158,7 @@ fn main() {
         None => {
             if outputs.len() > 1 {
                 error!("found multiple output arguments, pass --filter=X argument to select a specific output");
-                let names: Vec<_> = outputs.iter().map(|o| o.file_name().unwrap() ).collect();
+                let names: Vec<_> = outputs.iter().filter_map(|o| o.file_name() ).collect();
                 error!("{:#?}", names);
                 return
             }
