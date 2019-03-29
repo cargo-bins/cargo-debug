@@ -11,6 +11,7 @@ Install with `cargo install cargo-debug`
 - `cargo debug test -- --all` to run the `cargo test` with the `--all` argument
 - `cargo debug test -- -- --ignored` to run the test binary in the debugger with the `--ignored` argument
 - `cargo debug --command-file=test.cmd build` to run the build binary in a debugger with the specified command file
+- `cargo debug --filter=X --no-run test` to build cargo test, filter for the output binary starting with X, and output the debug command without running
 
 ## Status
 
@@ -20,6 +21,4 @@ Install with `cargo install cargo-debug`
 [![Docs.rs](https://docs.rs/cargo-debug/badge.svg)](https://docs.rs/cargo-debug)
 
 [Open Issues](https://github.com/ryankurte/cargo-debug/issues)
-
-TODO: this currently only works with projects with a single output file, a filter should be added where more that one output is discovered.
 
