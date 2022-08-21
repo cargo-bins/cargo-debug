@@ -36,6 +36,10 @@ struct Options {
     /// Command file to be passed to debugger
     command_file: Option<String>,
 
+    #[structopt(long = "address")]
+    /// Address to be passed to gdbserver. Required only for gdbserver
+    address: Option<String>,
+
     #[structopt(long = "filter")]
     /// Filter to match against multiple output files
     filter: Option<String>,
@@ -208,6 +212,21 @@ fn main() {
             debug_args.push("--".to_string());
             debug_args.append(&mut opts.clone());
         }
+    } else if debugger.ends_with("gdbserver") {
+        if let Some(address) = o.address {
+            debug_args.push(address);
+        } else {
+            error!("--address is required when gdbserver is used");
+            std::process::exit(1);
+        }
+        // Specify file to be debugged
+        debug_args.push(bin.clone().to_str().unwrap().to_string());
+        
+        // Append child options
+        if let Some(opts) = child_opts {
+            debug_args.append(&mut opts.clone());
+        }
+        
     } else {
         error!("unsupported or unrecognised debugger {}", debugger);
         return;
