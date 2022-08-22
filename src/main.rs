@@ -16,8 +16,7 @@ use simplelog::{TermLogger, LevelFilter};
 
 use cargo_metadata::{Message};
 
-extern crate cargo_toml2;
-use cargo_toml2::{CargoToml, from_path};
+use cargo_manifest::{Manifest};
 
 
 #[derive(StructOpt)]
@@ -96,9 +95,9 @@ fn main() {
 
     trace!("loading package file");
 
-    let toml: CargoToml = from_path("Cargo.toml").expect("Failed to read Cargo.toml");
+    let toml: Manifest = Manifest::from_path("Cargo.toml").expect("Failed to read Cargo.toml");
 
-    let package = toml.package.name;
+    let package = toml.package.expect("No package available").name;
 
     trace!("found package: '{}'", package);
 
