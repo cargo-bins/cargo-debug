@@ -211,6 +211,17 @@ fn main() {
             debug_args.push("--".to_string());
             debug_args.append(&mut opts.clone());
         }
+    } else if debugger.ends_with("rr") {
+        debug_args.push("record".to_string());
+
+        // Append child options
+        if let Some(opts) = child_opts {
+            debug_args.push("--".to_string());
+            debug_args.append(&mut opts.clone());
+        }
+
+        // Specify file to be debugged
+        debug_args.push(bin.clone().to_str().unwrap().to_string());
     } else if debugger.ends_with("gdbserver") {
         if let Some(address) = o.address {
             debug_args.push(address);
