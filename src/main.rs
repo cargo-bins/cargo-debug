@@ -105,15 +105,27 @@ fn main() {
 
     // Build and execute cargo command
     let cargo_bin = env::var("CARGO").unwrap_or(String::from("cargo"));
-    let mut cargo_cmd = Command::new(cargo_bin);
-    cargo_cmd.arg(&o.subcommand);
+    let mut cargo_cmd = Command::new(&cargo_bin);
+
+    match o.subcommand.as_str() {
+        "build" => {
+            cargo_cmd.arg("build");
+        },
+        "test" => {
+            cargo_cmd.args(["test", "--no-run"]);
+        },
+        "run" => {
+            // Use 'cargo build' to compile a binary when wrapping 'cargo run'
+            cargo_cmd.arg("build");
+        },
+        ref s => {
+            warn!("Unexpected subcommand {:?}, will run '{} {}' to collect artifact information.", s, &cargo_bin, s);
+            cargo_cmd.arg(s);
+        }
+    }
+
     cargo_cmd.arg("--message-format=json");
     cargo_cmd.stdout(Stdio::piped());
-
-    // Add no-run argument to test command
-    if &o.subcommand == "test" {
-        cargo_cmd.arg("--no-run");
-    }
 
     // Attach additional arguments
     if let Some(opts) = cargo_opts {
@@ -121,18 +133,23 @@ fn main() {
     }
 
     trace!("synthesized cargo command: {:?}", cargo_cmd);
-    
+
     trace!("launching cargo command");
     let mut handle = cargo_cmd.spawn().expect("error starting cargo command");
 
     // Log all output artifacts
     let mut artifacts = vec![];
+
     for message in cargo_metadata::parse_messages(handle.stdout.take().unwrap()) {
-        match message.expect("Invalid cargo JSON message") {
-            Message::CompilerArtifact(artifact) => {
+        match message {
+            Ok(Message::CompilerArtifact(artifact)) => {
                 artifacts.push(artifact);
             },
-            _ => ()
+            Ok(_) => (),
+            Err(e) => {
+                error!("Invalid cargo JSON message during build (executed {:?}): {:?}", cargo_cmd, e);
+                return
+            }
         }
     }
 
