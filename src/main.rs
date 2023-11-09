@@ -4,6 +4,7 @@ use std::time::{SystemTime, Duration};
 use std::sync::{Arc, Mutex};
 use std::ffi::OsString;
 use std::process::{Command, Stdio};
+use std::io;
 
 extern crate structopt;
 use structopt::StructOpt;
@@ -272,7 +273,20 @@ fn main() {
 
     trace!("synthesized debug command: {:?}", debug_cmd);
     
-    debug_cmd.status().expect("error running debug command");
+    match debug_cmd.status() {
+        Ok(_) => (),
+        Err(e) => {
+            match e.kind() {
+                io::ErrorKind::NotFound => {
+                    error!("debugger '{}' not found, ensure it is installed and available on PATH", debugger);
+                },
+                _ => {
+                    error!("{:?}", e);
+                    return;
+                }
+            }
+        }
+    }
 
     trace!("debug command done");
 }
